@@ -70,7 +70,7 @@ def main():
             try:
                 f=open("publicIP.txt", "r")
                 oldIP = f.read()
-                print(oldIP)
+                print(f'Old IP: {oldIP}')
             except Exception as e:
                 error += 1
                 sendEmail('Error in open file for read', f'Error: {e}', emailTo)
