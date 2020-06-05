@@ -37,13 +37,26 @@ def main():
 
     emailTo = 'SendToEmail' #Email alert to send to
     error = 0
+    webError = 0
 
     while (True):
 
         try:
-            # Get public IP address
-            publicIP = requests.get('http://ip.42.pl/raw').text
-            print(f'Actual public IP: {publicIP}')
+            
+            while (True):
+                try:
+                    # Get public IP address
+                    publicIP = requests.get('http://ip.42.pl/raw').text
+                    print(f'Actual public IP: {publicIP}')
+                    webError = 0
+                    break
+                except Exception as e:
+                    webError += 1
+                    if (webError == 5):
+                        sendEmail('Error in accessing IP website', f'Error: {e}', emailTo)
+                        break
+                    else:
+                        break
             
             # Create file if it doesn't exist
             try:
