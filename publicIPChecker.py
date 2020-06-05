@@ -33,52 +33,55 @@ def sendEmail(emailObj, emailText, emailTo) :
       print ('error sending mail')
   server.quit()
 
-emailTo = 'SendToEmail' #Email alert to send to
-error = 0
+def main():
 
-while (True):
+    emailTo = 'SendToEmail' #Email alert to send to
+    error = 0
 
-    try:
-        # Get public IP address
-        publicIP = requests.get('http://ip.42.pl/raw').text
-        print(f'Actual public IP: {publicIP}')
-        
-        # Create file if it doesn't exist
+    while (True):
+
         try:
-            f= open("publicIP.txt","x")
-            f.close()
-        except:
-            pass
-        
-        # Open file to read old IP and compare it
-        try:
-            f=open("publicIP.txt", "r")
-            oldIP = f.read()
-            print(oldIP)
+            # Get public IP address
+            publicIP = requests.get('http://ip.42.pl/raw').text
+            print(f'Actual public IP: {publicIP}')
+            
+            # Create file if it doesn't exist
+            try:
+                f= open("publicIP.txt","x")
+                f.close()
+            except:
+                pass
+            
+            # Open file to read old IP and compare it
+            try:
+                f=open("publicIP.txt", "r")
+                oldIP = f.read()
+                print(oldIP)
+            except Exception as e:
+                error += 1
+                sendEmail('Error in open file for read', f'Error: {e}', emailTo)
+            
+            try:
+                if (oldIP != publicIP):
+                    print(f'IP changed ! New IP: {publicIP}')
+                    # write the new ip in the file
+                    f= open("publicIP.txt","w")
+                    f.write(str(publicIP))
+                    f.close()
+                    # send an alert email
+                    sendEmail('Public IP changed !', f'The new IP is: {publicIP}', emailTo)
+                else:
+                    print('IP ok')
+            except:
+                pass
+                
         except Exception as e:
             error += 1
-            sendEmail('Error in open file for read', f'Error: {e}', emailTo)
-        
-        try:
-            if (oldIP != publicIP):
-                print(f'IP changed ! New IP: {publicIP}')
-                # write the new ip in the file
-                f= open("publicIP.txt","w")
-                f.write(str(publicIP))
-                f.close()
-                # send an alert email
-                sendEmail('Public IP changed !', f'The new IP is: {publicIP}', emailTo)
-            else:
-                print('IP ok')
-        except:
-            pass
+            sendEmail('Error in while loop', f'Error: {e}', emailTo)
             
-    except Exception as e:
-        error += 1
-        sendEmail('Error in while loop', f'Error: {e}', emailTo)
-        
-    if (error > 3):
-        break
-        
-    time.sleep(60)
+        if (error > 3):
+            break
+            
+        time.sleep(60)
     
+main()
