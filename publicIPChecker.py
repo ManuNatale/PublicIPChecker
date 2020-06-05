@@ -54,6 +54,7 @@ def main():
                     webError += 1
                     if (webError == 5):
                         sendEmail('Error in accessing IP website', f'Error: {e}', emailTo)
+                        webError = 0
                         break
                     else:
                         break
