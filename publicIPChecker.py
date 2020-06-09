@@ -12,7 +12,7 @@ def sendEmail(emailObj, emailText, emailTo) :
   # Gmail Sign In
   try:
     gmail_sender = 'YourEmail@gmail.com' #Your email login
-    gmail_passwd = 'EmailPassword' # Your email password
+    gmail_passwd = 'emailPassword' # Your email password
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
@@ -29,35 +29,23 @@ def sendEmail(emailObj, emailText, emailTo) :
   try:
       server.sendmail(gmail_sender, [TO], BODY)
       print ('email sent')
+      return True
   except:
       print ('error sending mail')
+      return False
   server.quit()
 
 def main():
 
-    emailTo = 'SendToEmail' #Email alert to send to
+    emailTo = 'alertEmailTobeSentTo' #Email alert to send to
     error = 0
-    webError = 0
 
     while (True):
 
         try:
-            
-            while (True):
-                try:
-                    # Get public IP address
-                    publicIP = requests.get('http://ip.42.pl/raw').text
-                    print(f'Actual public IP: {publicIP}')
-                    webError = 0
-                    break
-                except Exception as e:
-                    webError += 1
-                    if (webError == 5):
-                        sendEmail('Error in accessing IP website', f'Error: {e}', emailTo)
-                        webError = 0
-                        break
-                    else:
-                        break
+            # Get public IP address
+            publicIP = requests.get('http://ip.42.pl/raw').text
+            print(f'Actual public IP: {publicIP}')
             
             # Create file if it doesn't exist
             try:
@@ -82,18 +70,25 @@ def main():
                     f= open("publicIP.txt","w")
                     f.write(str(publicIP))
                     f.close()
-                    # send an alert email
-                    sendEmail('Public IP changed !', f'The new IP is: {publicIP}', emailTo)
+                    emailError = 0
+                    while (emailError < 80):
+                        # send an alert email
+                        emailSent = sendEmail('Public IP changed !', f'The new IP is: {publicIP}', emailTo)
+                        if (emailSent == True):
+                            break
+                        emailError += 1
+                        time.sleep(5)
                 else:
                     print('IP ok')
             except:
                 pass
-                
+            
+            error = 0
         except Exception as e:
             error += 1
             sendEmail('Error in while loop', f'Error: {e}', emailTo)
             
-        if (error > 3):
+        if (error > 7):
             break
             
         time.sleep(60)
