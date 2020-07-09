@@ -43,9 +43,13 @@ def main():
     while (True):
 
         try:
-            # Get public IP address
-            publicIP = requests.get('http://ip.42.pl/raw').text
-            print(f'Actual public IP: {publicIP}')
+            try:
+                # Get public IP address
+                publicIP = requests.get('http://ip.42.pl/raw').text
+                print(f'Actual public IP: {publicIP}')
+            except:
+                publicIP = requests.get('https://api.ipify.org').text
+                print(f'Actual public IP: {publicIP}')
             
             # Create file if it doesn't exist
             try:
